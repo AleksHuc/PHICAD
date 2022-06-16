@@ -1,0 +1,1 @@
+Folder for original files form ISCX-IDS-2012 dataset.

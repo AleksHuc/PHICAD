@@ -1,0 +1,1 @@
+Folder for original files form CIC-IDS-2017 dataset.
