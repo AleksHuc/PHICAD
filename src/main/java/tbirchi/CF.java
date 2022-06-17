@@ -13,6 +13,9 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import static java.time.temporal.ChronoUnit.SECONDS;
 
+/**
+ * This class implements an object that present the incremental cluster feature that presents the basis for incremental clustering.
+ */
 public class CF {
 
     private boolean normalCluster;
@@ -55,6 +58,22 @@ public class CF {
     private int anomalyIntraWindowLength = 40;
     private double anomalyIntraWindowProbability = 0.2;
 
+    /**
+     * The constructor creates an empty incremental cluster features with the corresponding parameters.
+     * @param lambda double value that presents the fading factor for forgetting old data.
+     * @param delta double value that presents the maximum delta (confidence) value for the ADWIN windows.
+     * @param checkStep int value that presents the number of iterations before we check for anomaly.
+     * @param maxBins int value that presents the maximum number of bins the exponential histogram can have.
+     * @param sizeOfBin int value that presents the maximum number of values inside a single bin.
+     * @param normalClusterThreshold double value that presents the multiplication factor for the harmonic mean to determine normal clusters based on their size.
+     * @param id long value that presents the unique identifier of the corresponding incremental cluster feature.
+     * @param name String value that presents the name of the corresponding incremental cluster feature.
+     * @param largeWindowSize int value that presents the size of the long-term window of short-term models.
+     * @param largeWindowProbability double value that presents the maximum probability of a given detection mechanism triggering to still be considered useful.
+     * @param smallWindowSize int value that presents the size of the short-term window of short-term models.
+     * @param smallWindowProbability double value that presents the minimum probability of a given detection mechanism triggering to still be considered useful.
+     * @param intraClusterThreshold double value that presents the multiplication factor for the standard deviation to determine distance threshold.
+     */
     public CF(double lambda, double delta, int checkStep, int maxBins, int sizeOfBin, double normalClusterThreshold, long id, String name, int largeWindowSize, double largeWindowProbability, int smallWindowSize, double smallWindowProbability, double intraClusterThreshold) {
         this.n = 0;
         this.w = 0.0;
@@ -84,22 +103,57 @@ public class CF {
         this.anomalyIntraWindowProbability = smallWindowProbability;
     }
 
+    /**
+     * The method returns the current value of changeTime variable.
+     * @return long value of the current value of changeTime variable.
+     */
     public long getChangeTime() {
         return changeTime;
     }
 
+    /**
+     * The method sets the changeTime variable to argument value.
+     * @param changeTime long value that presents the current value of changeTime.
+     */
     public void setChangeTime(long changeTime) {
         this.changeTime = changeTime;
     }
 
+    /**
+     * The method returns the incremental cluster feature creation time.
+     * @return LocalDateTime object that presents the incremental cluster feature creation timestamp.
+     */
     public LocalDateTime getCreationTimestamp() {
         return creationTimestamp;
     }
 
+    /**
+     * The method sets incremental cluster feature creation time to argument value.
+     * @param creationTimestamp LocalDateTime object of the creation timestamp.
+     */
     public void setCreationTimestamp(LocalDateTime creationTimestamp) {
         this.creationTimestamp = creationTimestamp;
     }
 
+
+    /**
+     * The constructor creates a new incremental cluster features from the current input point with the corresponding parameters.
+     * @param point double array that present the vector of the input point.
+     * @param timestamp LocalDateTime object that present the current time timestamp.
+     * @param lambda double value that presents the fading factor for forgetting old data.
+     * @param delta double value that presents the maximum delta (confidence) value for the ADWIN windows.
+     * @param checkStep int value that presents the number of iterations before we check for anomaly.
+     * @param maxBins int value that presents the maximum number of bins the exponential histogram can have.
+     * @param sizeOfBin int value that presents the maximum number of values inside a single bin.
+     * @param normalClusterThreshold double value that presents the multiplication factor for the harmonic mean to determine normal clusters based on their size.
+     * @param id long value that presents the unique identifier of the corresponding incremental cluster feature.
+     * @param name String value that presents the name of the corresponding incremental cluster feature.
+     * @param largeWindowSize int value that presents the size of the long-term window of short-term models.
+     * @param largeWindowProbability double value that presents the maximum probability of a given detection mechanism triggering to still be considered useful.
+     * @param smallWindowSize int value that presents the size of the short-term window of short-term models.
+     * @param smallWindowProbability double value that presents the minimum probability of a given detection mechanism triggering to still be considered useful.
+     * @param intraClusterThreshold double value that presents the multiplication factor for the standard deviation to determine distance threshold.
+     */
     public CF(double[] point, LocalDateTime timestamp, double lambda, double delta, int checkStep, int maxBins, int sizeOfBin, double normalClusterThreshold, long id, String name, int largeWindowSize, double largeWindowProbability, int smallWindowSize, double smallWindowProbability, double intraClusterThreshold){
         this.n = 1;
         this.w = 1.0;
@@ -135,10 +189,6 @@ public class CF {
         this.anomalyIntraWindowLength = smallWindowSize;
         this.anomalyWindowProbability = smallWindowProbability;
         this.anomalyIntraWindowProbability = smallWindowProbability;
-
-//        if (id == 2491) {
-//            System.out.println();
-//        }
 
         this.linearSum = new double[point.length];
         System.arraycopy(point, 0, this.linearSum, 0, this.linearSum.length);
@@ -176,34 +226,27 @@ public class CF {
         }
     }
 
-    byte[] update(CF cf, String anomaly) {
+    /**
+     * The method updates the incremental cluster feature with another incremental cluster feature.
+     * @param cf CF object that present the incremental cluster feature to be merged with the current incremental cluster feature.
+     * @return byte array of results from detection mechanisms in incremental cluster feature.
+     */
+    byte[] update(CF cf) {
 
-//        if (this.windows != null && cf.getN() == 1) {
-//
-//            if (this.pw == null) {
-//                try {
-//                    this.pw = new PrintWriter("results/" + name + "_" + this.id + "_CFTimeSeries.txt");
-//                    double[] centroid = this.getCentroid();
-//                    double[] wi = new double[this.windows.size()];
-//                    double[] wid = new double[this.windowsD.size()];
-//                    double[] winter = new double[this.windowsD.size()];
-//                    pw.println(Arrays.toString(centroid)+ ", 0.0, " + Arrays.toString(new double[12]) + ", 0.0" + " / " + Arrays.toString(wi) + ", " + Arrays.toString(wid) + ", 0.0" + " / " + Arrays.toString(winter) + ", 0.0");
-//                    pw.flush();
-//                } catch (FileNotFoundException e) {
-//                    e.printStackTrace();
-//                }
-//            }
-//        }
-
-        double[] winter = this.checkIntraAnomalies(cf);
+        this.checkIntraAnomalies(cf);
 
         long timestampDifference = this.updateValues(cf);
 
-        byte[] differences = this.updateWindows(cf, timestampDifference, winter, anomaly);
+        byte[] differences = this.updateWindows(cf, timestampDifference);
 
         return this.determineAnomalies(differences);
     }
 
+    /**
+     * The method determines if any change has been detected during the incremental cluster feature update.
+     * @param differences byte array that presents results from change detection mechanisms from each individual ADWIN window.
+     * @return byte array of results from detection mechanisms in incremental cluster feature.
+     */
     byte[] determineAnomalies(byte[] differences) {
         byte[] anomalies = new byte[2];
         if (differences != null) {
@@ -229,7 +272,13 @@ public class CF {
         return anomalies;
     }
 
-    byte[] updateWindows(CF cf, long timestampDifference, double[] winter, String anomaly) {
+    /**
+     * The method updates the ADWIN windows inside the current incremental cluster feature with the values from new incremental cluster feature.
+     * @param cf CF object that present the incremental cluster feature to be merged with the current incremental cluster feature.
+     * @param timestampDifference long value that presents the timestamp difference between current and previous update to this incremental cluster feature.
+     * @return byte array of results from change detection mechanisms from each individual ADWIN window.
+     */
+    byte[] updateWindows(CF cf, long timestampDifference) {
 
         byte[] differences = null;
 
@@ -264,34 +313,16 @@ public class CF {
                         }
 
                         if (this.hitWindows.get(i).newestSinceSize(this.n, hitWindowLength) < t) {
-
-//                            int newSize = this.n - this.lastSwitch[i];
-//                            if (newSize >= 40) {
-//                                newSize = 40;
                             if (this.hitWindows.get(i).newestSinceSize(this.n, anomalyWindowLength) > (anomalyWindowLength * anomalyWindowProbability)) {
-//                                    this.flags[i] = !this.flags[i];
                                 this.flags[i] = true;
                                 this.lastSwitch[i] = this.n;
-//                                                            wi[i] = 1.0;
                             }
-//                            }
-//                            this.flags[i] = !this.flags[i];
-
                         }
-//                        else {
-//                            if (this.flags[i]){
-//                                this.flags[i] = false;
-//                                this.flags[i] = !this.flags[i];
-//                                this.lastSwitch[i] = this.n;
-//                            }
-//                        }
                     }
 
                     else {
                         if (this.flags[i]){
                             this.flags[i] = false;
-//                                this.flags[i] = !this.flags[i];
-//                                this.lastSwitch[i] = this.n;
                         }
                     }
 
@@ -312,9 +343,6 @@ public class CF {
 
                         this.hitWindows.get(lengthOffset + i).add(this.n, 1.0);
 
-//                        if (2 < this.hitWindows.get(i).newestSinceSize(this.n, 20)) {
-
-//                            if (2 < this.hitWindows.get(i).newestSinceSize(this.n, 20) && this.hitWindows.get(i).newestSinceSize(this.n, 1000) < 10) {
                         double t = hitWindowLength * hitWindowProbability;
                         if (this.n < hitWindowLength) {
                             t = this.n * hitWindowProbability;
@@ -322,33 +350,16 @@ public class CF {
 
                         if (this.hitWindows.get(lengthOffset + i).newestSinceSize(this.n, hitWindowLength) < t) {
 
-//                            int newSize = this.n - this.lastSwitch[lengthOffset + i];
-//                            if (newSize >= this.anomalyWindowLength) {
-
                             if (this.hitWindows.get(lengthOffset + i).newestSinceSize(this.n, anomalyWindowLength) > (anomalyWindowLength * anomalyWindowProbability)) {
-//                                    this.flags[lengthOffset + i] = !this.flags[lengthOffset + i];
                                 this.flags[lengthOffset + i] = true;
                                 this.lastSwitch[lengthOffset + i] = this.n;
-//                                                            wi[i] = 1.0;
                             }
-//                            }
-//                            this.flags[i] = !this.flags[i];
 
                         }
-//                        else {
-//                            if (this.flags[lengthOffset + i]){
-//                                this.flags[lengthOffset + i] = !this.flags[lengthOffset + i];
-//                                this.lastSwitch[lengthOffset + i] = this.n;
-//                            }
-//                        }
-
-
                     }
                     else {
                         if (this.flags[lengthOffset + i]){
                             this.flags[lengthOffset + i] = false;
-//                                this.flags[lengthOffset + i] = !this.flags[lengthOffset + i];
-//                                this.lastSwitch[lengthOffset + i] = this.n;
                         }
                     }
 
@@ -358,10 +369,6 @@ public class CF {
                     }
                 }
 
-//                double[] centroid = this.getCentroid();
-//                pw.println(Arrays.toString(centroid) + ", " + normalizedTimestampDifference + ", " + Arrays.toString(differences2) + ", " + anomaly + " / " + Arrays.toString(wi) + ", " + Arrays.toString(wid) + ", " + anomaly + " / " + Arrays.toString(winter) + ", " + anomaly);
-//                pw.flush();
-
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -369,6 +376,11 @@ public class CF {
         return differences;
     }
 
+    /**
+     The method updates the incremental cluster feature statistics with another incremental cluster feature.
+     * @param cf CF object that present the incremental cluster feature to be merged with the current incremental cluster feature.
+     * @return long value that presents the timestamp difference between current and previous update to this incremental cluster feature.
+     */
     long updateValues(CF cf) {
         // Calculate timestamp difference between the new cf added and the cf and calculate new weight.
         long timestampDifference = 0;
@@ -435,6 +447,11 @@ public class CF {
         return timestampDifference;
     }
 
+    /**
+     * The method checks for the distance between the centroid of the current incremental cluster feature and a new merged incremental cluster feature and determines if a change has occurred.
+     * @param cf CF object that present the incremental cluster feature to be merged with the current incremental cluster feature.
+     * @return double array that represents the results from change detection mechanisms for each dimension.
+     */
     double[] checkIntraAnomalies(CF cf) {
         // Check if the new cf added to the cf falls out of the standard deviation threshold.
         byte[] intraClusterAnomaly = null;
@@ -453,22 +470,11 @@ public class CF {
                     }
 
                     if (this.intraHitWindows.get(i).newestSinceSize(this.n, hitIntraWindowLength) < t) {
-//                        int newSize = this.n - this.intraLastSwitch[i];
-//                        if (newSize >= this.anomalyIntraWindowLength) {
                         if (this.intraHitWindows.get(i).newestSinceSize(this.n, anomalyIntraWindowLength) > (anomalyIntraWindowLength * anomalyIntraWindowProbability)) {
-//                                this.intraFlags[i] = !this.intraFlags[i];
                             this.intraFlags[i] = true;
                             this.intraLastSwitch[i] = this.n;
-//                                                            wi[i] = 1.0;
-//                            }
                         }
                     }
-//                } else {
-//                    if (this.intraFlags[i]) {
-//                        this.intraFlags[i] = !this.intraFlags[i];
-//                        this.intraLastSwitch[i] = this.n;
-//                    }
-//                }
                 } else {
                     this.intraFlags[i] = false;
                 }
@@ -482,11 +488,24 @@ public class CF {
         return winter;
     }
 
+    /**
+     * The method checks if a new incremental cluster feature is inside of a threshold
+     * @param cf CF object that present the incremental cluster feature to be merged with the current incremental cluster feature.
+     * @param distanceThreshold double value that presents the maximum cluster radius for including new incremental clsuter features.
+     * @param distanceFunction int value that determines which distance function to use.
+     * @return boolean value that determines if merged incremental cluster feature is within the cluster or not.
+     */
     boolean isWithinThreshold(CF cf, double distanceThreshold, int distanceFunction) {
         double distance = distance(cf, distanceFunction);
         return distance == 0 || distance <= distanceThreshold;
     }
 
+    /**
+     * The method calculates the distance between two incremental cluster features.
+     * @param cf CF object that present the new incremental cluster feature.
+     * @param distFunction int value that determines which distance function to use.
+     * @return double value that presents the distance between two incremental cluster features.
+     */
     protected double distance(CF cf, int distFunction) {
         double dist = Double.MAX_VALUE;
 
@@ -514,6 +533,12 @@ public class CF {
         return dist;
     }
 
+    /**
+     * The method calculates the Euclidean distance between the two incremental cluster features.
+     * @param cf1 CF object that presents the first incremental cluster feature.
+     * @param cf2 CF object that presents the second incremental cluster feature.
+     * @return double value that presents the distance between the two incremental cluster features.
+     */
     private double d0(CF cf1, CF cf2) {
         double dist = 0;
         double wCF1 = cf1.getW();
@@ -534,6 +559,12 @@ public class CF {
         return Math.sqrt(dist);
     }
 
+    /**
+     * The method calculates the Manhattan distance between the two incremental cluster features.
+     * @param cf1 CF object that presents the first incremental cluster feature.
+     * @param cf2 CF object that presents the second incremental cluster feature.
+     * @return double value that presents the distance between the two incremental cluster features.
+     */
     private double d1(CF cf1, CF cf2) {
         double dist = 0;
         double wCF1 = cf1.getW();
@@ -554,6 +585,12 @@ public class CF {
         return dist;
     }
 
+    /**
+     * The method calculates the average inter-cluster distance between the two incremental cluster features.
+     * @param cf1 CF object that presents the first incremental cluster feature.
+     * @param cf2 CF object that presents the second incremental cluster feature.
+     * @return double value that presents the distance between the two incremental cluster features.
+     */
     private double d2(CF cf1, CF cf2) {
         double dist = 0;
 
@@ -577,6 +614,12 @@ public class CF {
         return Math.sqrt(dist);
     }
 
+    /**
+     * The method calculates the average intra-cluster distance between the two incremental cluster features.
+     * @param cf1 CF object that presents the first incremental cluster feature.
+     * @param cf2 CF object that presents the second incremental cluster feature.
+     * @return double value that presents the distance between the two incremental cluster features.
+     */
     private double d3(CF cf1, CF cf2) {
         double dist = 0;
         double wCF1 = cf1.getW();
@@ -585,11 +628,6 @@ public class CF {
         double[] linearSumCF2 = cf2.getLinearSum();
         double[] squareSumCF1 = cf1.getSquareSum();
         double[] squareSumCF2 = cf2.getSquareSum();
-
-//        if (linearSumCF1 == null || linearSumCF2 == null || squareSumCF1 == null || squareSumCF2 == null) {
-//            System.out.println();
-//        }
-
         double[] totalLinearSum = linearSumCF1.clone();
         double[] totalSquareSum = squareSumCF1.clone();
         for(int i = 0; i < linearSumCF1.length; i++) {
@@ -611,6 +649,12 @@ public class CF {
         return Math.sqrt(dist);
     }
 
+    /**
+     * The method calculates the variance increase distance between the two incremental cluster features.
+     * @param cf1 CF object that presents the first incremental cluster feature.
+     * @param cf2 CF object that presents the second incremental cluster feature.
+     * @return double value that presents the distance between the two incremental cluster features.
+     */
     private double d4(CF cf1, CF cf2) {
         double dist = 0;
         double wCF1 = cf1.getW();
@@ -643,6 +687,12 @@ public class CF {
         return Math.sqrt(dist);
     }
 
+    /**
+     * The method calculates the radius distance between the two incremental cluster features.
+     * @param cf1 CF object that presents the first incremental cluster feature.
+     * @param cf2 CF object that presents the second incremental cluster feature.
+     * @return double value that presents the distance between the two incremental cluster features.
+     */
     private double d5(CF cf1, CF cf2) {
         double dist = 0;
 
@@ -666,17 +716,6 @@ public class CF {
 
         }
 
-//        double radius = 0.0;
-//        for (int i = 0; i < centroid.length; i++) {
-//            radius += this.squareSum[i] / this.weightSum - centroid[i] * centroid[i];
-//        }
-//
-//        if (this.count > 1 && Math.sqrt(radius) == 0.0) {
-//            System.out.println();
-//        }
-//
-//        return Math.sqrt(radius);
-
         if (dist < 0.0){
             if(dist < -0.00000001)
                 System.err.println("d5 < 0 !!!");
@@ -686,38 +725,37 @@ public class CF {
         return Math.sqrt(dist);
     }
 
+    /**
+     * The method checks for changes for each dimension in the standard deviation and distance between the current incremental feature and new incremental feature.
+     * @param cf CF object that present the new incremental cluster feature.
+     * @return byte array that presents detected changes in each dimension when comparing the distance and standard deviation.
+     */
     byte[] checkStandardDeviation(CF cf) {
 
         byte[] anomalyCount = new byte[this.linearSum.length];
 
-//        if (this.n > 2 && this.normalCluster) {
         if (this.n > 2) {
 
             double[] standardDeviation = this.getStandardDeviation();
-//            double[] centroid = this.getCentroid();
-
             double[] cfLinearSum = cf.getLinearSum();
             double cfW = cf.getW();
-
-            double[] distanceArray = new double[this.linearSum.length];
-            double[] centroidArray = this.getCentroid();
-            double[] pointArray = cf.getCentroid();
             for (int i = 0; i < this.linearSum.length; i++) {
                 if (standardDeviation[i] != 0.0 && !Double.isNaN(standardDeviation[i])) {
                     double distance = Math.abs(this.linearSum[i] / this.w - cfLinearSum[i] / cfW);
-                    distanceArray[i] = distance;
                     if (distance > (this.intraClusterThreshold * standardDeviation[i])) {
-//                        System.out.println("Anomaly detected!");
                         anomalyCount[i] = 1;
                     }
                 }
             }
-//            System.out.println();
         }
 
         return anomalyCount;
     }
 
+    /**
+     * The method calculates the centroid from the incremental cluster feature statistics.
+     * @return double array that presents the centroid of incremental cluster feature.
+     */
     double[] getCentroid() {
         double[] centroid = new double[this.linearSum.length];
 
@@ -728,6 +766,10 @@ public class CF {
         return centroid;
     }
 
+    /**
+     * The method calculates the standard deviation from the incremental cluster feature statistics.
+     * @return double array that presents the standard deviation of incremental cluster feature.
+     */
     double[] getStandardDeviation() {
         double[] standardDeviation = new double[this.linearSum.length];
 
@@ -741,6 +783,11 @@ public class CF {
         return standardDeviation;
     }
 
+    /**
+     * The method for determining if two incremental cluster features are equal.
+     * @param o object presents an incremental cluster feature to be compared with the current incremental cluster feature.
+     * @return boolean value that present whether the two incremental cluster feature are equal or not.
+     */
     public boolean equals(Object o) {
         CF cf = (CF)o;
 
@@ -792,10 +839,18 @@ public class CF {
 
     }
 
+    /**
+     * The method returns if the incremental cluster feature is anomalous or not.
+     * @return boolean value that presents whether the incremental cluster feature has been flagged as anomalous or not.
+     */
     public boolean isAnomalyCluster() {
         return anomalyCluster;
     }
 
+    /**
+     * The method sets the incremental cluster feature to anomaly on the basis of input parameters.
+     * @param anomalyCluster boolean array that presents detected changes.
+     */
     public void setAnomalyCluster(boolean[] anomalyCluster) {
         int count = 0;
         for (boolean b : anomalyCluster) {
@@ -804,40 +859,31 @@ public class CF {
             }
         }
         if (count > 0) {
-//            this.normalCluster = false;
             this.anomalyCluster = true;
         } else {
-//            this.normalCluster = true;
             this.anomalyCluster = false;
         }
     }
 
+    /**
+     * The method returns if the incremental cluster feature is normal or not.
+     * @return boolean value that presents whether the incremental cluster feature has been flagged as normal or not.
+     */
     public boolean isNormalCluster() {
         return this.normalCluster;
     }
 
+    /**
+     * The method determines whether the incremental cluster feature is a normal cluster on the basis of its size.
+     * @param nLeafCFs AtomicInteger object that presents the total number of leaf incremental cluster features in the tree.
+     * @param nLeafCFsSum AtomicInteger object that presents the total sum of leaf incremental cluster features in the tree.
+     * @param nLeafCFsSquared AtomicInteger object that presents the total squared sum of leaf incremental cluster features in the tree.
+     * @param nLeafCFsHSum MutableDouble object that presents the total inverse sum of leaf incremental cluster features in the tree.
+     * @return boolean value that presents whether the incremental cluster feature is anomalous or not.
+     */
     public boolean isNormalCluster2(AtomicInteger nLeafCFs, AtomicInteger nLeafCFsSum, AtomicInteger nLeafCFsSquared, MutableDouble nLeafCFsHSum) {
-        double meanN = (double)nLeafCFsSum.get() / (double)nLeafCFs.get();
         double hmeanN = (double)nLeafCFs.get() / nLeafCFsHSum.getValue();
 
-//        if (name.equals("192.168.2.106_bwd")) {
-////            System.out.println("hmeanN " + hmeanN);
-////            System.out.println("meanN " + meanN);
-////            double stdN = Math.sqrt((nLeafCFsSquared.get() - (2 * nLeafCFsSum.get() * meanN) + nLeafCFs.get() * (meanN * meanN)) / nLeafCFs.get());
-////            System.out.println("stdN " + stdN);
-//            System.out.println("this.n  " + this.n);
-//            System.out.println("hmeant " + hmeanN * this.normalClusterThreshold);
-////            System.out.println("meant " + meanN * this.normalClusterThreshold);
-//        }
-
-//        double stdN = Math.sqrt((nLeafCFsSquared.get() - (2 * nLeafCFsSum.get() * meanN) + nLeafCFs.get() * (meanN * meanN)) / nLeafCFs.get());
-//        double threeStD = (meanN - 2 * stdN);
-//        if (threeStD > 1.0) {
-//            System.out.println(threeStD);
-//        }
-//        if (this.n < (meanN * this.normalClusterThreshold)) {
-//            return false;
-//        }
         if (this.n < hmeanN * this.normalClusterThreshold) {
             return false;
         }
@@ -846,59 +892,107 @@ public class CF {
         }
     }
 
+    /**
+     * The method determines the difference in seconds between the current timestamp and new timestamp.
+     * @param ts LocalDateTime object that present a new timestamp.
+     * @return long value that presents the difference in seconds between the current timestamp and new timestamp.
+     */
     public long getTsDifference(LocalDateTime ts) {
-
-//        if (SECONDS.between(this.timestamp, ts) < 0) {
-//            System.out.println();
-//        }
-
         return SECONDS.between(this.timestamp, ts);
     }
 
+    /**
+     * The method sets the incremental cluster feature to normal on the basis of input parameters.
+     * @param normalCluster boolean value that presents normal cluster flag.
+     */
     public void setNormalCluster(boolean normalCluster) {
         this.normalCluster = normalCluster;
     }
 
+    /**
+     * The method adds a new incremental cluster feature to the child incremental cluster feature.
+     * @param cf CF object to be added to the child incremental cluster feature.
+     */
     void addToChild(CF cf) {
         this.child.getCfList().add(cf);
     }
 
+    /**
+     * The method returns the number of data points aggregated in the incremental cluster feature.
+     * @return int value that presents the number of data points aggregated in the incremental cluster feature.
+     */
     public int getN() {
         return n;
     }
 
+    /**
+     * The method returns the time fading weight of data points aggregated in the incremental cluster feature.
+     * @return int double that presents the time fading weight of data points aggregated in the incremental cluster feature.
+     */
     public double getW() {
         return w;
     }
 
+    /**
+     * The method returns the linear sum of data points aggregated in the incremental cluster feature.
+     * @return double array that presents the linear sum of data points aggregated in the incremental cluster feature.
+     */
     double[] getLinearSum() {
         return linearSum;
     }
 
+    /**
+     * The method returns the square sum of data points aggregated in the incremental cluster feature.
+     * @return double array that presents the square sum of data points aggregated in the incremental cluster feature.
+     */
     double[] getSquareSum() {
         return squareSum;
     }
 
+    /**
+     * The method returns the timestamp of the incremental cluster feature.
+     * @return LocalDateTime object that presents the timestamp of the incremental cluster feature.
+     */
     public LocalDateTime getTimestamp() {
         return timestamp;
     }
 
+    /**
+     * The method returns the child incremental cluster feature node.
+     * @return CFNode object that presents the child incremental cluster feature node.
+     */
     CFNode getChild() {
         return child;
     }
 
+    /**
+     * The method returns the list of ADWIN windows of the incremental cluster feature node.
+     * @return ArrayList&lt;ADWIN&gt; object that present the list of ADWIN windows of the incremental cluster feature node.
+     */
     public ArrayList<ADWIN> getWindows() {
         return windows;
     }
 
+    /**
+     * The method sets the list of ADWIN windows of the incremental cluster feature node to the input argument.
+     * @param windows ArrayList&lt;ADWIN&gt; object that present the list of ADWIN windows of the incremental cluster feature node.
+     */
     public void setWindows(ArrayList<ADWIN> windows) {
         this.windows = windows;
     }
 
+    /**
+     * The methods set the child incremental cluster feature node of the incremental cluster feature to the input argument.
+     * @param child
+     */
     void setChild(CFNode child) {
         this.child = child;
     }
 
+    /**
+     * The method checks whether the incremental cluster feature has a child incremental cluster feature node.
+     * @return boolean value that presents whether the incremental cluster feature has a child incremental cluster feature node.
+     */
     boolean hasChild() {
         return this.child != null;
     }

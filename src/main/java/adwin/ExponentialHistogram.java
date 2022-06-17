@@ -79,7 +79,7 @@ public class ExponentialHistogram {
 
     /**
      * The method returns the histogram bins.
-     * @return LinkedList&lt;HistogramBin&gt; that holds all bins of the exponential histogram.
+     * @return LinkedList&lt;HistogramBin&gt; object that holds all bins of the exponential histogram.
      */
     public LinkedList<HistogramBin> getHistogram() {
         return histogram;

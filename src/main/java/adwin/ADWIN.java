@@ -18,10 +18,10 @@ public class ADWIN {
 
     /**
      * The constructor creates new adaptive window (ADWIN) object from the given parameters.
-     * @param delta double that presents the maximum delta (confidence) value for the ADWIN windows.
-     * @param checkStep int that presents the number of iterations before we check for anomaly.
-     * @param maxBins int that presents the maximum number of bins the exponential histogram can have.
-     * @param sizeOfBin int that presents the maximum number of values inside a single bin.
+     * @param delta double value that presents the maximum delta (confidence) value for the ADWIN windows.
+     * @param checkStep int value that presents the number of iterations before we check for anomaly.
+     * @param maxBins int value that presents the maximum number of bins the exponential histogram can have.
+     * @param sizeOfBin int value that presents the maximum number of values inside a single bin.
      */
     public ADWIN(double delta, int checkStep, int maxBins, int sizeOfBin) {
         this.delta = delta;
