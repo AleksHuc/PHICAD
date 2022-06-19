@@ -14,7 +14,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import static java.time.temporal.ChronoUnit.SECONDS;
 
 /**
- * This class implements an object that present the incremental cluster feature that presents the basis for incremental clustering.
+ * The class implements an object that present the incremental cluster feature.
  */
 public class CF {
 
@@ -137,7 +137,7 @@ public class CF {
 
 
     /**
-     * The constructor creates a new incremental cluster features from the current input point with the corresponding parameters.
+     * The constructor creates a new incremental cluster feature from the current input point with the corresponding parameters.
      * @param point double array that present the vector of the input point.
      * @param timestamp LocalDateTime object that present the current time timestamp.
      * @param lambda double value that presents the fading factor for forgetting old data.
@@ -875,10 +875,10 @@ public class CF {
 
     /**
      * The method determines whether the incremental cluster feature is a normal cluster on the basis of its size.
-     * @param nLeafCFs AtomicInteger object that presents the total number of leaf incremental cluster features in the tree.
-     * @param nLeafCFsSum AtomicInteger object that presents the total sum of leaf incremental cluster features in the tree.
-     * @param nLeafCFsSquared AtomicInteger object that presents the total squared sum of leaf incremental cluster features in the tree.
-     * @param nLeafCFsHSum MutableDouble object that presents the total inverse sum of leaf incremental cluster features in the tree.
+     * @param nLeafCFs AtomicInteger object that presents atomic int value for counting the number of leaf incremental cluster features in the tree.
+     * @param nLeafCFsSum AtomicInteger object that presents atomic int value for counting the linear sum of number of leaf incremental cluster features in the tree.
+     * @param nLeafCFsSquared AtomicInteger object that presents atomic int value for counting the square sum of number of leaf incremental cluster features in the tree.
+     * @param nLeafCFsHSum MutableDouble object that presents atomic double value for counting the linear sum of one divided with number of leaf incremental cluster features in the tree.
      * @return boolean value that presents whether the incremental cluster feature is anomalous or not.
      */
     public boolean isNormalCluster2(AtomicInteger nLeafCFs, AtomicInteger nLeafCFsSum, AtomicInteger nLeafCFsSquared, MutableDouble nLeafCFsHSum) {
