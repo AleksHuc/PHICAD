@@ -1,1 +1,1 @@
-packageSearchIndex = [{"l":"adwin"},{"l":"All Packages","u":"allpackages-index.html"},{"l":"evaluation"},{"l":"latbirchi"},{"l":"lbtbirchi"},{"l":"lctbirchi"},{"l":"phi2cad"},{"l":"phicad"},{"l":"tbirchi"},{"l":"utils"}];updateSearchResults();
+packageSearchIndex = [{"l":"adwin"},{"l":"All Packages","url":"allpackages-index.html"},{"l":"evaluation"},{"l":"latbirchi"},{"l":"lbtbirchi"},{"l":"lctbirchi"},{"l":"phi2cad"},{"l":"phicad"},{"l":"tbirchi"},{"l":"utils"}]

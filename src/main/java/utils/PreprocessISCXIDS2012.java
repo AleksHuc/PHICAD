@@ -11,8 +11,15 @@ import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicLong;
 
+/**
+ * The class presents the preprocessing of ISCXIDS2012 dataset.
+ */
 public class PreprocessISCXIDS2012 {
 
+    /**
+     * The method that preprocesses the dataset.
+     * @param args String array of general input parameters.
+     */
     static public void main(String[] args) {
 
         String legend = "Flow ID, Source IP, Source Port, Destination IP, Destination Port, Protocol, Timestamp, Flow Duration, Total Fwd Packets, Total Backward Packets, Total Length of Fwd Packets, Total Length of Bwd Packets, Label";
@@ -81,10 +88,6 @@ public class PreprocessISCXIDS2012 {
                     e.printStackTrace();
                 }
             }
-        }
-
-        for (Map.Entry<String, AtomicLong> entry : protocols.entrySet()) {
-            System.out.println(entry.getKey() + " " + entry.getValue().get());
         }
     }
 }

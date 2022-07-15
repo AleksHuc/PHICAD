@@ -10,6 +10,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
+
+import utils.FlowMessage;
 import utils.MutableDouble;
 
 import static java.time.temporal.ChronoUnit.SECONDS;
@@ -239,7 +241,7 @@ public class Profile {
 
 //        double[] clusteringDifferences = this.clustering.get(flowDirection).clusterPoint(listToArray(clusteringVectorNormalized), timestamp);
 
-        SplitChangeDifference splitClusteringDifferences = this.clustering.get(flowDirection).insertPoint(listToArray(clusteringVectorNormalized), timestamp, flowMessage.getAnomaly());
+        SplitChangeDifference splitClusteringDifferences = this.clustering.get(flowDirection).insertPoint(listToArray(clusteringVectorNormalized), timestamp);
 
 //        if (printOut) {
 //            double normalizedDistance = 0.0;

@@ -1,22 +1,8 @@
 package utils;
 
 
-import java.awt.geom.Ellipse2D;
-
-import org.jfree.chart.ChartFactory;
-import org.jfree.chart.ChartUtilities;
-import org.jfree.chart.JFreeChart;
-import org.jfree.chart.axis.NumberAxis;
-import org.jfree.chart.axis.SymbolAxis;
-import org.jfree.chart.plot.PlotOrientation;
-import org.jfree.chart.plot.XYPlot;
-import org.jfree.chart.renderer.xy.XYDotRenderer;
-import org.jfree.chart.renderer.xy.XYLineAndShapeRenderer;
 import org.jfree.data.xy.XYSeries;
-import org.jfree.data.xy.XYSeriesCollection;
-import org.jfree.util.ShapeUtilities;
 
-import java.awt.*;
 import java.io.*;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -26,12 +12,12 @@ import static utils.Utils.parseTimestamp;
 
 
 /**
- * The class presents the method for ordering dataset flows on the basis of time-stamps.
+ * The class presents the preprocessing of CICIDS2017 dataset.
  */
 public class PreprocessCICIDS2017 {
 
     /**
-     * The method orders the dataset flows on the basis of time-stamps.
+     * The method that preprocesses the dataset.
      * @param args String array of general input parameters.
      */
     public static void main(String args[]) {
@@ -163,46 +149,9 @@ public class PreprocessCICIDS2017 {
 
                 f0.close();
 
-//                XYSeriesCollection dataset = new XYSeriesCollection();
-//
-//                dataset.addSeries(hours.get("BENIGN"));
-//
-//                for (Map.Entry<String, XYSeries> entry : hours.entrySet()) {
-//                    if (!entry.getKey().equals("BENIGN")) {
-//                        dataset.addSeries(entry.getValue());
-//                    }
-//                }
-//
-//                XYLineAndShapeRenderer renderer = new XYLineAndShapeRenderer(false, true);
-//
-//                NumberAxis domainAxis = new NumberAxis("Consecutive flows");
-//                NumberAxis rangeAxis = new NumberAxis("Hour value");
-////                    rangeAxis.setTickUnit(new NumberTickUnit(2.0));
-//
-//                XYPlot plot = new XYPlot(dataset, domainAxis, rangeAxis, renderer);
-//                JFreeChart chart = new JFreeChart("Hours of " + fileNameSplit[0], plot);
-//
-//                XYDotRenderer dr = new XYDotRenderer();
-//                dr.setDotHeight(4);
-//                dr.setDotWidth(4);
-//                plot.setRenderer(dr);
-//                plot.setDomainCrosshairVisible(false);
-//                plot.setRangeCrosshairVisible(false);
-//
-//                chart.getPlot().setBackgroundPaint(Color.WHITE);
-//
-//                try {
-//                    ChartUtilities.saveChartAsJPEG(new File("data/CIC-IDS-2017/" + fileNameSplit[0] + "_Hours" + ".png"), chart, 4096, 1024);
-//                } catch (IOException e) {
-//                    e.printStackTrace();
-//                }
-
             } catch(IOException e) {
                 e.printStackTrace();
             }
         }
-//        for (Map.Entry<String, AtomicLong> entry : protocols.entrySet()) {
-//            System.out.println(entry.getKey() + " " + entry.getValue().get());
-//        }
     }
 }

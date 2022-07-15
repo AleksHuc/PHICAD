@@ -83,20 +83,20 @@ public class CFTree {
 
     }
 
-    public SplitChangeDifference insertPoint(double[] point, LocalDateTime timestamp, String anomaly) {
+    public SplitChangeDifference insertPoint(double[] point, LocalDateTime timestamp) {
 
 //        System.out.println(Arrays.toString(point));
 
         this.counter++;
         this.timestamp = timestamp;
-        return insertCF(new CF(point, timestamp, this.lambda, this.delta, this.checkStep, this.maxBins, this.sizeOfBin, this.normalClusterThreshold, this.idCounter.getAndIncrement(), name), true, anomaly);
+        return insertCF(new CF(point, timestamp, this.lambda, this.delta, this.checkStep, this.maxBins, this.sizeOfBin, this.normalClusterThreshold, this.idCounter.getAndIncrement(), name), true);
     }
 
-    private SplitChangeDifference insertCF(CF cf, boolean insertingNew, String anomaly){
+    private SplitChangeDifference insertCF(CF cf, boolean insertingNew){
 
 //        System.out.println(this.name + " " + this.counter);
 //        this.print("results/test_p_tree.txt");
-        SplitChangeDifference splitChangeDifference = this.root.insertCF(cf, this.nCFNodes, this.nLeafCFs, this.nLeafCFsSum, this.nLeafCFsSquared, insertingNew, this.nLeafCFsHSum, anomaly, this.interHitWindows, this.interFlags, this.interLastSwitch, this.hitInterWindowLength, this.hitInterWindowProbability, this.anomalyWindowLength, this.anomalyWindowProbability, this.counter);
+        SplitChangeDifference splitChangeDifference = this.root.insertCF(cf, this.nCFNodes, this.nLeafCFs, this.nLeafCFsSum, this.nLeafCFsSquared, insertingNew, this.nLeafCFsHSum, this.interHitWindows, this.interFlags, this.interLastSwitch, this.hitInterWindowLength, this.hitInterWindowProbability, this.anomalyWindowLength, this.anomalyWindowProbability, this.counter);
 
         if (splitChangeDifference.isSplit()) {
             splitRoot();
@@ -298,7 +298,7 @@ public class CFTree {
         while (currentNode != null) {
             if (!currentNode.isDummy()) {
                 for (CF cf : currentNode.getCfList()) {
-                    newCFTree.insertCF(cf, false, "0.0");
+                    newCFTree.insertCF(cf, false);
                 }
             }
             currentNode = currentNode.getNextCFLeaf();

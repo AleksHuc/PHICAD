@@ -1,6 +1,7 @@
 package phi2cad;
 
 import evaluation.CalculateResults;
+import utils.FlowMessage;
 
 import java.io.*;
 import java.math.BigDecimal;
@@ -210,7 +211,7 @@ public class PHI2CAD {
                                 for (int i = 0; i < this.selectedValues.length; i++) {
                                     reducedFlow[i] = sFlow[this.selectedValues[i]];
                                 }
-                                queues.get(workerIndex).put(new FlowMessage(reducedFlow, direction, "0.0"));
+                                queues.get(workerIndex).put(new FlowMessage(reducedFlow, direction));
                             }
                         }
 
@@ -221,7 +222,7 @@ public class PHI2CAD {
             }
 
             for (BlockingQueue<FlowMessage> bQ : queues) {
-                bQ.put(new FlowMessage(new String[]{"END"}, "fwd", "0.0"));
+                bQ.put(new FlowMessage(new String[]{"END"}, "fwd"));
             }
 
             executorService.shutdown();

@@ -174,7 +174,7 @@ public class CF {
         }
     }
 
-    byte[] update(CF cf, String anomaly) {
+    byte[] update(CF cf) {
 
 //        if (this.windows != null && cf.getN() == 1) {
 //
@@ -197,7 +197,7 @@ public class CF {
 
         long timestampDifference = this.updateValues(cf);
 
-        byte[] differences = this.updateWindows(cf, timestampDifference, winter, anomaly);
+        byte[] differences = this.updateWindows(cf, timestampDifference, winter);
 
         return this.determineAnomalies(differences);
     }
@@ -227,7 +227,7 @@ public class CF {
         return anomalies;
     }
 
-    byte[] updateWindows(CF cf, long timestampDifference, double[] winter, String anomaly) {
+    byte[] updateWindows(CF cf, long timestampDifference, double[] winter) {
 
         byte[] differences = null;
 

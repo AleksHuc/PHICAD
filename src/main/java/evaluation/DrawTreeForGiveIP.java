@@ -1,25 +1,10 @@
 package evaluation;
 
-import phicad.MutableLocalDateTime;
-import tbirchi.CFTree;
-import tbirchi.SplitChangeDifference;
-
-import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileReader;
-import java.io.PrintWriter;
-import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Objects;
-
-import static utils.Utils.normalize;
-import static utils.Utils.trigonometricTransform;
-import static java.time.temporal.ChronoUnit.SECONDS;
-import static phicad.Profile.listToArray;
-import static phicad.Profile.parseTimestamp;
 
 public class DrawTreeForGiveIP {
 

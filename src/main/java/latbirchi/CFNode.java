@@ -47,7 +47,7 @@ public class CFNode {
         this.name = name;
     }
 
-    SplitChangeDifference insertCF(CF cf, AtomicInteger nCFNodes, AtomicInteger nLeafCFs, AtomicInteger nLeafCFsSum, AtomicInteger nLeafCFsSquared, boolean insertingNew, MutableDouble nLeafCFsHSum, String anomaly, ArrayList<HitWindow> interHitWindows, boolean[] interFlags, int[] interLastSwitch, int hitInterWindowLength, double hitInterWindowProbability, int anomalyWindowLength, double anomalyWindowProbability, int counter){
+    SplitChangeDifference insertCF(CF cf, AtomicInteger nCFNodes, AtomicInteger nLeafCFs, AtomicInteger nLeafCFsSum, AtomicInteger nLeafCFsSquared, boolean insertingNew, MutableDouble nLeafCFsHSum, ArrayList<HitWindow> interHitWindows, boolean[] interFlags, int[] interLastSwitch, int hitInterWindowLength, double hitInterWindowProbability, int anomalyWindowLength, double anomalyWindowProbability, int counter){
 
 //        System.out.println(name);
 
@@ -65,9 +65,9 @@ public class CFNode {
         CF closestCF = findClosestCF(cf);
 
         if (closestCF.hasChild()){
-            SplitChangeDifference splitChangeDifference = closestCF.getChild().insertCF(cf, nCFNodes, nLeafCFs, nLeafCFsSum, nLeafCFsSquared, insertingNew, nLeafCFsHSum, anomaly, interHitWindows, interFlags, interLastSwitch, hitInterWindowLength, hitInterWindowProbability, anomalyWindowLength, anomalyWindowProbability, counter);
+            SplitChangeDifference splitChangeDifference = closestCF.getChild().insertCF(cf, nCFNodes, nLeafCFs, nLeafCFsSum, nLeafCFsSquared, insertingNew, nLeafCFsHSum, interHitWindows, interFlags, interLastSwitch, hitInterWindowLength, hitInterWindowProbability, anomalyWindowLength, anomalyWindowProbability, counter);
             if (!splitChangeDifference.isSplit()) {
-                closestCF.update(cf, "0.0");
+                closestCF.update(cf);
 //                return false;
                 splitChangeDifference.setSplit(false);
                 return splitChangeDifference;
@@ -90,7 +90,7 @@ public class CFNode {
         }
 //        else if (closestCF.isWithinThreshold(cf, this.distanceThreshold, this.distanceFunction)) {
         else if (closestCF.isWithinThreshold(cf, this.distanceThreshold, CFTree.D5_DIST)) {
-            return addToCF(cf, closestCF, nLeafCFs, nLeafCFsSum, nLeafCFsSquared, nLeafCFsHSum, anomaly, insertingNew);
+            return addToCF(cf, closestCF, nLeafCFs, nLeafCFsSum, nLeafCFsSquared, nLeafCFsHSum, insertingNew);
         }
         else if (this.cfList.size() < this.maxNodeEntries) {
             return addToCFNode(cf, false, nCFNodes, nLeafCFs, nLeafCFsSum, nLeafCFsSquared, nLeafCFsHSum, interHitWindows, interFlags, interLastSwitch, hitInterWindowLength, hitInterWindowProbability, anomalyWindowLength, anomalyWindowProbability, counter);
@@ -100,7 +100,7 @@ public class CFNode {
         }
     }
 
-    SplitChangeDifference addToCF(CF cf, CF closestCF, AtomicInteger nLeafCFs, AtomicInteger nLeafCFsSum, AtomicInteger nLeafCFsSquared, MutableDouble nLeafCFsHSum, String anomaly, boolean insertingNew) {
+    SplitChangeDifference addToCF(CF cf, CF closestCF, AtomicInteger nLeafCFs, AtomicInteger nLeafCFsSum, AtomicInteger nLeafCFsSquared, MutableDouble nLeafCFsHSum, boolean insertingNew) {
 
         // Decrement the CF counters with the old value of closestCF.
         nLeafCFsSum.getAndSet(nLeafCFsSum.get() - closestCF.getN());
@@ -108,7 +108,7 @@ public class CFNode {
         nLeafCFsSquared.getAndSet(nLeafCFsSquared.get() - (closestCF.getN() * closestCF.getN()));
 
         // Update the closestCF with CF and get cluster changes and intra cluster anomaly flags.
-        byte[] changeDifferences = closestCF.update(cf, anomaly);
+        byte[] changeDifferences = closestCF.update(cf);
 
         // Increment the CF counters with the new value of closestCF.
         nLeafCFsSum.getAndAdd(closestCF.getN());
@@ -232,7 +232,7 @@ public class CFNode {
         CF newCF = new CF(this.lambda, this.delta, this.checkStep, this.maxBins, this.sizeOfBin, this.normalClusterThreshold, -1L, this.name);
 
         for (CF cCF : this.cfList) {
-            newCF.update(cCF, "0.0");
+            newCF.update(cCF);
             if (cCF.isNormalCluster())  {
                 newCF.setNormalCluster(true);
             }
@@ -325,11 +325,11 @@ public class CFNode {
 
             if (currentCF.equals(farthestCFPair[0])) {
                 newCF1.addToChild(currentCF);
-                newCF1.update(currentCF, "0.0");
+                newCF1.update(currentCF);
             }
             else if (currentCF.equals(farthestCFPair[1])) {
                 newCF2.addToChild(currentCF);
-                newCF2.update(currentCF, "0.0");
+                newCF2.update(currentCF);
             }
             else {
                 double distanceCF1 = farthestCFPair[0].distance(currentCF, this.distanceFunction);
@@ -337,11 +337,11 @@ public class CFNode {
 
                 if (distanceCF1 <= distanceCF2) {
                     newCF1.addToChild(currentCF);
-                    newCF1.update(currentCF, "0.0");
+                    newCF1.update(currentCF);
                 }
                 else {
                     newCF2.addToChild(currentCF);
-                    newCF2.update(currentCF, "0.0");
+                    newCF2.update(currentCF);
                 }
             }
 
@@ -395,21 +395,21 @@ public class CFNode {
             if (distanceCF1 <= distanceCF2) {
                 if (newCF1.getChild().getCfList().size() < this.maxNodeEntries) {
                     newCF1.addToChild(currentCF);
-                    newCF1.update(currentCF, "0.0");
+                    newCF1.update(currentCF);
                 }
                 else {
                     newCF2.addToChild(currentCF);
-                    newCF2.update(currentCF, "0.0");
+                    newCF2.update(currentCF);
                 }
             }
             else{
                 if (newCF2.getChild().getCfList().size() < this.maxNodeEntries) {
                     newCF2.addToChild(currentCF);
-                    newCF2.update(currentCF, "0.0");
+                    newCF2.update(currentCF);
                 }
                 else {
                     newCF1.addToChild(currentCF);
-                    newCF1.update(currentCF, "0.0");
+                    newCF1.update(currentCF);
                 }
             }
         }
@@ -422,7 +422,7 @@ public class CFNode {
 
         for (CF currentCF : allCFs) {
             newCF.addToChild(currentCF);
-            newCF.update(currentCF, "0.0");
+            newCF.update(currentCF);
         }
     }
 

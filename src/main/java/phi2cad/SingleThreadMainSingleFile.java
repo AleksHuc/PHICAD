@@ -4,6 +4,7 @@ import evaluation.CalculateResults3;
 import lctbirchi.CF;
 import lctbirchi.CFTree;
 import lctbirchi.SplitChangeDifference;
+import utils.FlowMessage;
 import utils.Utils;
 
 import java.io.*;
@@ -376,7 +377,7 @@ public class SingleThreadMainSingleFile {
                                             anomalousFlows++;
                                         }
                                     }
-                                    FlowMessage fm = new FlowMessage(reducedFlow, direction, Double.toString(groundTruth));
+                                    FlowMessage fm = new FlowMessage(reducedFlow, direction);
 
                                     String currentIP = fm.getFlow()[0];
 //                System.out.println(currentIP);

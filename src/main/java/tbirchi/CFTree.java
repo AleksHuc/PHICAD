@@ -316,8 +316,6 @@ public class CFTree {
             }
             centroidString.append("]");
 
-
-
             writer.println("└── " + "N=" + currentN + " C=" + centroidString.toString() + "MCS=" + (double)this.nLeafCFsSum.get()/this.nLeafCFs.get());
             this.root.print("    ", false, writer, this.nLeafCFs, this.nLeafCFsSum, this.nLeafCFsSquared, this.timestamp, this.nLeafCFsHSum);
             writer.close();

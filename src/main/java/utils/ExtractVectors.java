@@ -1,10 +1,6 @@
 package utils;
 
 
-import phi2cad.FlowMessage;
-
-import phicad.MutableLocalDateTime;
-
 import java.io.BufferedReader;
 import java.io.File;
 
@@ -100,7 +96,7 @@ public class ExtractVectors {
                                             }
                                             index++;
                                         }
-                                        FlowMessage fm = new FlowMessage(reducedFlow, direction, Double.toString(groundTruth));
+                                        FlowMessage fm = new FlowMessage(reducedFlow, direction);
 
                                         String flowDirection = fm.getDirection();
                                         String[] flowData = fm.getFlow();

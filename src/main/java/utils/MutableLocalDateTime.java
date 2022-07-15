@@ -1,4 +1,4 @@
-package phicad;
+package utils;
 
 import java.time.LocalDateTime;
 
@@ -11,7 +11,7 @@ public class MutableLocalDateTime {
 
     /**
      * The constructor creates new MutableLocalDateTime object.
-     * @param localDateTime LocalDateTime value that presents the current value of MutableLocalDateTime.
+     * @param localDateTime LocalDateTime object that presents the new timestamp of MutableLocalDateTime.
      */
     public MutableLocalDateTime(LocalDateTime localDateTime) {
         this.localDateTime = localDateTime;
@@ -19,7 +19,7 @@ public class MutableLocalDateTime {
 
     /**
      * The method returns the current value of MutableLocalDateTime.
-     * @return LocalDateTime value that presents the current value of MutableLocalDateTime.
+     * @return LocalDateTime object that presents the current timestamp of MutableLocalDateTime.
      */
     public LocalDateTime getLocalDateTime() {
         return localDateTime;
@@ -27,7 +27,7 @@ public class MutableLocalDateTime {
 
     /**
      * The method sets the current value of MutableLocalDateTime.
-     * @param localDateTime LocalDateTime value that presents the current value of MutableLocalDateTime.
+     * @param localDateTime LocalDateTime object that presents the new timestamp of MutableLocalDateTime.
      */
     public void setLocalDateTime(LocalDateTime localDateTime) {
         this.localDateTime = localDateTime;

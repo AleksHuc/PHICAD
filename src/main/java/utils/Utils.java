@@ -3,10 +3,11 @@ package utils;
 import java.io.File;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
+/**
+ * The class implements' helper methods used through the project.
+ */
 public class Utils {
 
     public static DateTimeFormatter[] TIME_FORMATS = new DateTimeFormatter[]{
@@ -16,7 +17,7 @@ public class Utils {
 
     /**
      * The method transforms the given List of doubles to array of doubles.
-     * @param list List&lt;Dobule&gt; that presents the given List of doubles.
+     * @param list List&lt;Dobule&gt; object that presents the given List of doubles.
      * @return double[] array of the give List of doubles.
      */
     public static double[] listToArray(List<Double> list) {
@@ -28,7 +29,7 @@ public class Utils {
     }
 
     /**
-     * The methods concatenates two double arrays.
+     * The method concatenates two double arrays.
      * @param a1 double[] array that present the first input double array.
      * @param a2 double[] array that present the second input double array.
      * @return double[] array that presents concatenation of the input double arrays.
@@ -42,6 +43,10 @@ public class Utils {
         return array;
     }
 
+    /**
+     * The method deletes all directories and files in the given directory.
+     * @param dir File object that presents the directory for deleting everything inside.
+     */
     public static void purgeDirectory(File dir) {
         for (File file: Objects.requireNonNull(dir.listFiles())) {
             if (file.isDirectory())
@@ -55,9 +60,9 @@ public class Utils {
 
     /**
      * The method parses time-stamp string.
-     * @param timestampString String that presents the given time-stamp.
+     * @param timestampString String object that presents the given time-stamp.
      * @param formats DateTimeFormatter[] array that presents the possible formats for parsing DateTime.
-     * @return LocalDateTime that presents the given time-stamp.
+     * @return LocalDateTime object that presents the given timestamp.
      */
     public static LocalDateTime parseTimestamp(String timestampString, DateTimeFormatter[] formats) {
 
@@ -116,6 +121,12 @@ public class Utils {
         return (((value - oldMinValue) * (newMaxValue - newMinValue)) / (oldMaxValue - oldMinValue)) + newMinValue;
     }
 
+    /**
+     * The method reverses the parameters of the network flow from source to destination and vice versa.
+     * @param flow String array that presents the parameters of the network flow.
+     * @param reverseTable HashMap&lt;Integer, Integer&gt; that presents the indexes for switching every specific pair of parameters.
+     * @return String array that presents the network flow with reversed parameters.
+     */
     public static String[] reverseFlow(String[] flow, HashMap<Integer, Integer> reverseTable) {
         String[] reversedFlow = new String[flow.length];
 
@@ -130,5 +141,72 @@ public class Utils {
         }
 
         return reversedFlow;
+    }
+
+    /**
+     * The method sets everything for calculating all possible combinations of all parameter values.
+     * @param lists List&lt;List&lt;Double&gt;&gt; object that presents all parameters and all their possible values.
+     * @return List&lt;List&lt;Double&gt;&gt; object that presents all possible combinations of all parameter values.
+     */
+    public static List<List<Double>> product(List<List<Double>> lists) {
+        List<List<Double>> product = new ArrayList<>();
+
+        // We first create a list for each value of the first list
+        product(product, new ArrayList<>(), lists);
+
+        return product;
+    }
+
+    /**
+     * The method recursively calculates all possible combinations of all parameter values.
+     * @param result List&lt;List&lt;Double&gt;&gt; object that eventually presents all possible combinations of all parameter values.
+     * @param existingTupleToComplete List&lt;List&lt;Double&gt;&gt; object that presents current combinations of parameter values.
+     * @param valuesToUse List&lt;List&lt;Double&gt;&gt; object that presents all parameters and all their possible values.
+     */
+    private static void product(List<List<Double>> result, List<Double> existingTupleToComplete, List<List<Double>> valuesToUse) {
+        for (Double value : valuesToUse.get(0)) {
+            List<Double> newExisting = new ArrayList<>(existingTupleToComplete);
+            newExisting.add(value);
+
+            // If only one column is left
+            if (valuesToUse.size() == 1) {
+                // We create a new list with the exiting tuple for each value with the value
+                // added
+                result.add(newExisting);
+            } else {
+                // If there are still several columns, we go into recursion for each value
+                List<List<Double>> newValues = new ArrayList<>();
+                // We build the next level of values
+                for (int i = 1; i < valuesToUse.size(); i++) {
+                    newValues.add(valuesToUse.get(i));
+                }
+
+                product(result, newExisting, newValues);
+            }
+        }
+    }
+
+    /**
+     * The method calculates all subsets of a given set.
+     * @param originalSet Set&lt;Integer&gt; object that presents the indexes of parameters.
+     * @return Set&lt;Set&lt;Integer&gt;&gt; object that presents all subsets of the given set of parameters.
+     */
+    public static Set<Set<Integer>> powerSet(Set<Integer> originalSet) {
+        Set<Set<Integer>> sets = new HashSet<Set<Integer>>();
+        if (originalSet.isEmpty()) {
+            sets.add(new HashSet<Integer>());
+            return sets;
+        }
+        List<Integer> list = new ArrayList<Integer>(originalSet);
+        Integer head = list.get(0);
+        Set<Integer> rest = new HashSet<Integer>(list.subList(1, list.size()));
+        for (Set<Integer> set : powerSet(rest)) {
+            Set<Integer> newSet = new HashSet<Integer>();
+            newSet.add(head);
+            newSet.addAll(set);
+            sets.add(newSet);
+            sets.add(set);
+        }
+        return sets;
     }
 }
