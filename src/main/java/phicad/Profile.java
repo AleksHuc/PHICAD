@@ -3,6 +3,7 @@ package phicad;
 import tbirchi.CFTree;
 import tbirchi.SplitChangeDifference;
 import utils.MutableDouble;
+import utils.MutableLocalDateTime;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -42,7 +43,7 @@ public class Profile {
 
     private ArrayList<String> selectedValuesProcessing;
 
-    private HashMap<String,MutableLocalDateTime> previousTimestamp;
+    private HashMap<String, MutableLocalDateTime> previousTimestamp;
     private HashMap<String,MutableLocalDateTime> lastCheckTimestamp;
     private HashMap<String, MutableDouble> average;
     private HashMap<String,MutableDouble> variance;

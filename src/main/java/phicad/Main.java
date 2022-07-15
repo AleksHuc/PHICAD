@@ -8,7 +8,7 @@ import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
 /**
- * The class presents the object for running the anomaly detection algorithm.
+ * The class presents the object for running the PHICAD anomaly detection algorithm.
  */
 public class Main {
 
@@ -21,7 +21,7 @@ public class Main {
 
         ArrayList<File> arrayOfFiles = new ArrayList<>();
 
-//        arrayOfFiles.add(new File("data/CIC-IDS-2017/Monday-WorkingHoursOrdered.pcap_ISCX.csv"));
+        arrayOfFiles.add(new File("data/CIC-IDS-2017/Monday-WorkingHoursOrdered.pcap_ISCX.csv"));
         arrayOfFiles.add(new File("data/CIC-IDS-2017/Tuesday-WorkingHoursOrdered.pcap_ISCX.csv"));
         arrayOfFiles.add(new File("data/CIC-IDS-2017/Wednesday-workingHoursOrdered.pcap_ISCX.csv"));
         arrayOfFiles.add(new File("data/CIC-IDS-2017/Thursday-WorkingHours-Morning-WebAttacksOrdered.pcap_ISCX.csv"));
@@ -31,7 +31,7 @@ public class Main {
         arrayOfFiles.add(new File("data/CIC-IDS-2017/Friday-WorkingHours-Afternoon-DDosOrdered.pcap_ISCX.csv"));
 
         ArrayList<String[]> arrayOfAnomalies = new ArrayList<>();
-//        arrayOfAnomalies.add(new String[]{});
+        arrayOfAnomalies.add(new String[]{});
         arrayOfAnomalies.add(new String[]{"SSH-Patator", "FTP-Patator"});
         arrayOfAnomalies.add(new String[]{"DoS Slowhttptest", "DoS GoldenEye", "Heartbleed", "DoS slowloris", "DoS Hulk"});
         arrayOfAnomalies.add(new String[]{"Web Attack � Sql Injection", "Web Attack � XSS", "Web Attack � Brute Force"});
@@ -39,16 +39,6 @@ public class Main {
         arrayOfAnomalies.add(new String[]{"Bot"});
         arrayOfAnomalies.add(new String[]{"PortScan"});
         arrayOfAnomalies.add(new String[]{"DDoS"});
-
-        String[] anomalies = new String[] {
-                "SSH-Patator", "FTP-Patator",
-                "DoS Slowhttptest", "DoS GoldenEye", "Heartbleed", "DoS slowloris", "DoS Hulk",
-                "Web Attack � Sql Injection", "Web Attack � XSS", "Web Attack � Brute Force",
-                "Infiltration",
-                "Bot",
-                "PortScan",
-                "DDoS"
-        };
 
         String resultsPathName = "results/";
         File dir = new File(resultsPathName);

@@ -44,19 +44,19 @@ public class CF {
     private int[] lastSwitch;
     private int[] intraLastSwitch;
 
-    private double delta = 0.01;
-    private int checkStep = 32;
-    private int maxBins = 5;
-    private int sizeOfBin = 5;
+    private double delta;
+    private int checkStep;
+    private int maxBins;
+    private int sizeOfBin;
     private int[] windowsRate;
-    private int hitWindowLength = 1000;
-    private double hitWindowProbability = 0.05;
-    private int anomalyWindowLength = 20;
-    private double anomalyWindowProbability = 0.1;
-    private int hitIntraWindowLength = 1000;
-    private double hitIntraWindowProbability = 0.05;
-    private int anomalyIntraWindowLength = 40;
-    private double anomalyIntraWindowProbability = 0.2;
+    private int hitWindowLength;
+    private double hitWindowProbability;
+    private int anomalyWindowLength;
+    private double anomalyWindowProbability;
+    private int hitIntraWindowLength;
+    private double hitIntraWindowProbability;
+    private int anomalyIntraWindowLength;
+    private double anomalyIntraWindowProbability;
 
     /**
      * The constructor creates an empty incremental cluster features with the corresponding parameters.
