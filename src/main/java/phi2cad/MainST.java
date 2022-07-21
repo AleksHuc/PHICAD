@@ -1,7 +1,6 @@
 package phi2cad;
 
 import evaluation.CalculateResults3;
-import lctbirchi.CF;
 import lctbirchi.CFTree;
 import lctbirchi.SplitChangeDifference;
 import utils.FlowMessage;
@@ -15,7 +14,7 @@ import java.util.concurrent.TimeUnit;
 
 import static java.time.temporal.ChronoUnit.SECONDS;
 
-public class SingleThreadMainSingleFile {
+public class MainST {
 
     static boolean printOut = true;
 

@@ -1,286 +1,89 @@
 package phicad;
 
-import evaluation.CalculateResults;
+import evaluation.CalculateResults3;
 import utils.FlowMessage;
 
 import java.io.*;
-import java.math.BigDecimal;
-import java.math.RoundingMode;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 import java.util.concurrent.*;
 
+import static utils.Utils.*;
+
 /**
- * The class presents the object that presents the anomaly detection algorithm.
+ * The class presents the main class of PHICAD.
  */
 public class PHICAD {
 
-    private boolean printOut;
+    private boolean printOut = false;
+    static int[] selectedValuesKeys = new int[]{1, 3};
 
-    private int nThreads;
-    private int maxChildren;
-    private int pointLength;
-    private int checkStep;
-    private int maxBins;
-    private int sizeOfBin;
-    private int distanceFunction;
-    private int selectedKey;
+    /*
+    Threshold: 0.001 for Total Fwd Packets X: 273.00.0 Y: 0,000994
+    Threshold: 0.001 for Total Backward Packets X: 408.00.0 Y: 0,000998
+    Threshold: 0.001 for Total Length of Fwd Packets X: 34336.00.0 Y: 0,001000
+    Threshold: 0.001 for Total Length of Bwd Packets X: 689853.00.0 Y: 0,001000
+     */
 
-    private double delta;
-    private double lambda;
-    private double clearThreshold;
-    private double threshold;
-    private double thresholdT;
-    private double timestampRateMax;
-    private double normalClusterThreshold;
+    static HashMap<Integer,long[]> minMaxValues = new HashMap<>(){{
+        put(1, new long[]{0L, 255L});
+        put(3, new long[]{0L, 255L});
+        put(2, new long[]{0L, 65535L});
+        put(4, new long[]{0L, 65535L});
+        put(5, new long[]{0L, 1L});
+        put(10, new long[]{0L, 34336L});
+        put(11, new long[]{0L, 689853L});
+        put(8, new long[]{1L, 273L});
+        put(9, new long[]{0L, 408L});
+        put(7, new long[]{0L, 120000000L});
+        put(6, new long[]{0L, 3600L});
+    }};
 
     private String resultsPathName;
-
-    private int[] indexIP;
-    private int[] selectedValues;
-    private int[] selectedValuesKeys;
+    private Integer[] selectedValues;
     private String[] arrayOfAnomalies;
-
     private ArrayList<File> arrayOfFiles;
     private ArrayList<String> selectedValuesProcessing;
-
     private HashMap<Integer,Integer> reverseTable;
     private HashMap<Integer,HashMap<String,Boolean>> ipSplit;
-    private HashMap<Integer,long[]> minMaxValues;
+    private List<Double> parameters;
+    private PrintWriter pw;
+    private Set<Integer> features;
+    int size;
+    int i;
+
+    static HashMap<Integer, String> selectedValuesLegend = new HashMap<>(){{
+        put(1, "Source IP"); put(3, "Destination IP"); put(2, "Source Port"); put(4, "Destination Port"); put(5, "Protocol");
+        put(10, "Total Length of Fwd Packets"); put(11, "Total Length of Bwd Packets"); put(8, "Total Fwd Packets"); put(9, "Total Backward Packets"); put(7, "Flow Duration");
+        put(6, "Timestamp");
+    }};
 
     /**
-     * The constructor creates new PHICAD object with the given parameters.
-     * @param arrayOfFiles ArrayList&lt;File&gt; that presents the file paths of files to be analyzed.
-     * @param resultsPathName String value that present the path name of the directory for storing results.
+     *
+     * @param resultsPathName String object that present the folder where PHICAD will store its results.
+     * @param selectedValues Integer array that presents the indexes of network flow features to be used in analysis.
+     * @param selectedValuesProcessing ArrayList&lt;String&gt; object that presents how each selected network feature should be analyzed.
+     * @param reverseTable HashMap&lt;Integer, Integer&gt; object that presents index pairs for reversing the direction of the network flow.
+     * @param anomalies String array that presents the labels that present anomalies in the dataset.
+     * @param arrayOfFiles ArrayList&lt;File&gt; object that presents the list of files to process.
+     * @param pw PrintWriter object that presents the output data stream for writing the result files.
+     * @param size int value that presents whether we are running the analysis through entire dataset or per each file separately.
+     * @param i int value that presents the consecutive number of the analysis.
+     * @param parameters List&lt;Double&gt; object that presents the current configuration of the parameters used for analysis.
+     * @param features Set&lt;Integer&gt; object that presents the list of indexes that present which features to use for analysis.
      */
-    public PHICAD(ArrayList<File> arrayOfFiles, String resultsPathName, String[] arrayOfAnomalies) {
-
-        this.printOut = true;
-
-        this.nThreads = Runtime.getRuntime().availableProcessors() / 2;
-
-//        this.nThreads = 1;
-        this.maxChildren = 8;
-        this.pointLength = 21;
-//        this.pointLength = 12;
-        this.checkStep = 32;
-        this.maxBins = 5;
-        this.sizeOfBin = 5;
-        this.distanceFunction = 0;
-
-        this.delta = 0.2;
-//        this.delta = 0.31;
-//        this.lambda = 0.008;
-        this.lambda = 0.008;
-        this.clearThreshold = 0.05;
-        this.threshold = 0.19;
-        this.thresholdT = 1800;
-        this.timestampRateMax = 432000.0;
-        this.normalClusterThreshold = 0.1;
-
+    public PHICAD(String resultsPathName, Integer[] selectedValues, ArrayList<String> selectedValuesProcessing, HashMap<Integer, Integer> reverseTable, String[] anomalies, ArrayList<File> arrayOfFiles, PrintWriter pw, int size, int i, List<Double> parameters, Set<Integer> features) {
         this.resultsPathName = resultsPathName;
-
-        this.selectedValues = new int[]{1, 3, 2, 4, 5, 10, 11, 8, 9, 7, 6, 84};
-//        this.selectedValues = new int[]{1, 3, 2, 4, 5, 10, 11, 8, 9, 7, 84};
-        this.selectedValuesProcessing = new ArrayList<>(){{add("\\."); add("\\."); add("n"); add("n"); add("n"); add("n"); add("n"); add("n"); add("n"); add("n"); add("t"); add("l");}};
-//        this.selectedValuesProcessing = new ArrayList<>(){{add("\\."); add("\\."); add("n"); add("n"); add("n"); add("n"); add("n"); add("n"); add("n"); add("n"); add("l");}};
-        this.selectedValuesKeys = new int[]{1, 3};
-
+        this.selectedValues = selectedValues;
+        this.selectedValuesProcessing = selectedValuesProcessing;
+        this.reverseTable = reverseTable;
+        this.arrayOfAnomalies = anomalies;
         this.arrayOfFiles = arrayOfFiles;
-        this.arrayOfAnomalies = arrayOfAnomalies;
-
+        this.i = i;
+        this.parameters = parameters;
+        this.pw = pw;
+        this.features = features;
+        this.size = size;
         this.ipSplit = new HashMap<>();
-        this.reverseTable = new HashMap<>(){{
-            put(1, 3); put(2, 4); put(8, 9); put(10, 11); put(12, 16); put(13, 17); put(14, 18); put(15, 19);
-            put(26, 31); put(27, 32); put(28, 33); put(29, 34); put(30, 35); put(36, 37); put(38, 39); put(40, 41);
-            put(42, 43); put(59, 60); put(62, 65); put(63, 66); put(64, 67); put(68, 70); put(69, 71); put(72, 73);
-            put(74, 75);
-        }};
-
-        /*
-        * Source Port - Min: 0,000000  Max: 65535,000000
-        * Destination Port - Min: 0,000000  Max: 65535,000000
-        * Protocol - Min: 0,000000  Max: 17,000000
-        * Flow Duration - Min: -13,000000  Max: 119999998,000000
-        * Total Fwd Packets - Min: 1,000000  Max: 219759,000000
-        * Total Backward Packets - Min: 0,000000  Max: 291922,000000
-        * Total Length of Fwd Packets - Min: 0,000000  Max: 12900000,000000
-        * Total Length of Bwd Packets - Min: 0,000000  Max: 655453030,000000
-        */
-
-        this.minMaxValues = new HashMap<>(){{
-            put(1, new long[]{0L, 255L});
-            put(3, new long[]{0L, 255L});
-            put(2, new long[]{0L, 65535L});
-            put(4, new long[]{0L, 65535L});
-            put(5, new long[]{6L, 17L});
-            put(10, new long[]{0L, 12900000L});
-            put(11, new long[]{0L, 655453030L});
-            put(8, new long[]{1L, 219759L});
-            put(9, new long[]{0L, 291922L});
-            put(7, new long[]{0L, 120000000L});
-            put(6, new long[]{0L, 3600L});
-        }};
-
-//        this.minMaxValues = new HashMap<>(){{
-//            put(1, new long[]{0L, 255L});
-//            put(3, new long[]{0L, 255L});
-//            put(2, new long[]{0L, 65535L});
-//            put(4, new long[]{0L, 65535L});
-//            put(5, new long[]{0L, 255L});
-//            put(10, new long[]{0L, 100000L});
-//            put(11, new long[]{0L, 100000L});
-//            put(8, new long[]{1L, 100L});
-//            put(9, new long[]{0L, 100L});
-//            put(7, new long[]{0L, 120000000L});
-//            put(6, new long[]{0L, 3600L});
-//        }};
-    }
-
-    /**
-     * The method parses traffic flows from files and sends them to the Worker threads for analysis.
-     */
-    public void runAnalysis(PrintWriter pw, double threshold, double lambda, String filename){
-
-        File dir = new File(this.resultsPathName);
-
-        for (File file: Objects.requireNonNull(dir.listFiles())) {
-            if (file.getName().startsWith("results_")) {
-                boolean result = file.delete();
-                if (!result) {
-                    System.out.println("Delete failed: " + file.getName());
-                }
-            }
-        }
-
-        if (threshold > 0.0) {
-            this.threshold = threshold;
-        }
-        if (lambda > 0.0) {
-            this.lambda = lambda;
-        }
-
-        ExecutorService executorService = Executors.newFixedThreadPool(this.nThreads);
-
-        ArrayList<BlockingQueue<FlowMessage>> queues = new ArrayList<>();
-
-        for (int i = 0; i < this.nThreads; i++) {
-
-            LinkedBlockingQueue<FlowMessage> bQueue = new LinkedBlockingQueue<>();
-            queues.add(bQueue);
-
-            Worker worker = new Worker(Integer.toString(i), bQueue, this.minMaxValues,
-                    this.selectedValues, this.selectedValuesProcessing, this.selectedKey, this.maxChildren, this.threshold, this.pointLength, this.resultsPathName, this.delta,
-                    this.clearThreshold, this.checkStep, this.maxBins, this.sizeOfBin, this.thresholdT, this.timestampRateMax,
-                    this.printOut, this.lambda, this.arrayOfAnomalies, this.distanceFunction, this.normalClusterThreshold);
-
-            HashMap<String,Boolean> ips = new HashMap<>();
-            this.ipSplit.put(i, ips);
-
-            executorService.submit(worker);
-        }
-
-        try {
-            for (File currentFile : this.arrayOfFiles) {
-
-                FileReader fr = new FileReader(currentFile);
-                BufferedReader br = new BufferedReader(fr);
-
-                boolean firstLine = false;
-                for(String line; (line = br.readLine()) != null;) {
-
-                    if(firstLine) {
-
-                        String[] sFlow = line.split(",");
-
-                        if (sFlow.length > 0) {
-
-                            for (int index_key = 0; index_key < selectedValuesKeys.length; index_key++) {
-                                String ip = sFlow[selectedValuesKeys[index_key]];
-
-                                int workerIndex = findAppropriateWorker(ip);
-                                String direction = "fwd";
-
-                                if (index_key == 1) {
-                                    sFlow = reverseFlow(sFlow);
-                                    direction = "bwd";
-                                }
-                                String[] reducedFlow = new String[this.selectedValues.length];
-                                for (int i = 0; i < this.selectedValues.length; i++) {
-                                    reducedFlow[i] = sFlow[this.selectedValues[i]];
-                                }
-//                                queues.get(workerIndex).put(new FlowMessage(reducedFlow, direction, "0.0"));
-                            }
-                        }
-
-                    } else {
-                        firstLine = true;
-                    }
-                }
-            }
-
-//            for (BlockingQueue<FlowMessage> bQ : queues) {
-//                bQ.put(new FlowMessage(new String[]{"END"}, "fwd", "0.0"));
-//            }
-
-            executorService.shutdown();
-            executorService.awaitTermination(Integer.MAX_VALUE, TimeUnit.MINUTES);
-
-        } catch (InterruptedException | IOException e) {
-            e.printStackTrace();
-        }
-
-//        CalculateResultsPHICAD cr = new CalculateResultsPHICAD();
-//        cr.calculate(this.resultsPathName, this.printOut, pw);
-
-        CalculateResults cr = new CalculateResults();
-        cr.calculate(this.resultsPathName, "", this.printOut, pw);
-
-    }
-
-    public void runMultipleAnalysis(PrintWriter pw){
-
-        for (double i = 0.01; i < 0.31; i += 0.01) {
-//            for (double i = 0.01; i < 0.02; i += 0.01) {
-            this.threshold = new BigDecimal(i).setScale(2, RoundingMode.HALF_UP).doubleValue();
-            for (double j = 0.0; j < 0.001; j += 0.0001) {
-//                for (double j = 0.0; j < 0.002; j += 0.001) {
-                this.lambda = new BigDecimal(j).setScale(4, RoundingMode.HALF_UP).doubleValue();
-//                this.lambda = 0.0001;
-//                for (int k = 0; k < 6; k ++) {
-//                    for (int k = 0; k < 1; k ++) {
-                    this.distanceFunction = 0;
-//                    this.distanceFunction = k;
-                    System.out.print("  Threshold: " + String.format("%.2f", this.threshold) + " Lambda: " + String.format("%.4f", this.lambda) + " DistanceFunction: " + this.distanceFunction + " ");
-                    pw.print("  Threshold: " + String.format("%.2f", this.threshold) + " Lambda: " + String.format("%.4f", this.lambda) + " DistanceFunction: " + this.distanceFunction + " ");
-                    pw.flush();
-                    this.runAnalysis(pw, -1.0, -1.0, "");
-//                }
-            }
-        }
-    }
-
-    /**
-     * The method reverses the traffic flows so that destination IP is now source IP.
-     * @param flow String[] array that presents the given traffic flow.
-     * @return String[] array that presents the reversed traffic flow.
-     */
-    private String[] reverseFlow(String[] flow) {
-        String[] reversedFlow = new String[flow.length];
-
-        for (int i = 0; i < flow.length; i++) {
-            if (this.reverseTable.containsKey(i)) {
-                reversedFlow[i] = flow[this.reverseTable.get(i)];
-                reversedFlow[this.reverseTable.get(i)] = flow[i];
-            }
-            else if (!this.reverseTable.containsValue(i)) {
-                reversedFlow[i] = flow[i];
-            }
-        }
-
-        return reversedFlow;
     }
 
     /**
@@ -339,5 +142,177 @@ public class PHICAD {
             }
         }
         return workerIndex;
+    }
+
+    /**
+     * The method presents the main part of PHICAD analysis.
+     */
+    public void runAnalysis() {
+
+        int[] currentSelectedValues = new int[features.size() + 3];
+        currentSelectedValues[0] = selectedValues[0];
+        currentSelectedValues[1] = selectedValues[1];
+        currentSelectedValues[currentSelectedValues.length - 1] = selectedValues[selectedValues.length - 1];
+
+        int ic = 2;
+        for (Integer v : features) {
+            currentSelectedValues[ic] = v;
+            ic++;
+        }
+
+        String[] currentSelectedValuesLegend = new String[currentSelectedValues.length];
+        for (int v = 0; v < currentSelectedValues.length; v++) {
+            currentSelectedValuesLegend[v] = selectedValuesLegend.get(currentSelectedValues[v]);
+        }
+
+        List<Integer> selectedValuesList = Arrays.asList(selectedValues);
+        ArrayList<String> currentSelectedValuesProcessing = new ArrayList<>();
+        for (int v : currentSelectedValues) {
+            currentSelectedValuesProcessing.add(selectedValuesProcessing.get(selectedValuesList.indexOf(v)));
+        }
+
+        long innerStartTime = System.nanoTime();
+
+        String fileName = arrayOfFiles.get(i).getName().split("\\.")[0];
+
+        System.out.println(fileName + " " + Arrays.toString(parameters.toArray()) + " " + Arrays.toString(currentSelectedValues));
+        pw.print("File: " + arrayOfFiles.get(i).getName() + ", ");
+        pw.print("Max Children: " + parameters.get(0) + ", ");
+        pw.print("Max Nodes: " + parameters.get(1) + ", ");
+        pw.print("Lambda: " + parameters.get(2) + ", ");
+        pw.print("Threshold: " + parameters.get(3) + ", ");
+        pw.print("Check Step: " + parameters.get(4) + ", ");
+        pw.print("Max Bins: " + parameters.get(5) + ", ");
+        pw.print("Size of Bin: " + parameters.get(6) + ", ");
+        pw.print("Delta: " + parameters.get(7) + ", ");
+        pw.print("Large Window Size: " + parameters.get(8) + ", ");
+        pw.print("Large Window Probability: " + parameters.get(9) + ", ");
+        pw.print("Small Window Size: " + parameters.get(10) + ", ");
+        pw.print("Small Window Probability: " + parameters.get(11) + ", ");
+        pw.print("Cluster Size Threshold: " + parameters.get(12) + ", ");
+        pw.print("Intra Cluster Threshold: " + parameters.get(13) + ", ");
+        pw.print("Features: " + Arrays.toString(currentSelectedValuesLegend) + ", ");
+
+        pw.flush();
+
+        ArrayList<File> currentFileArray = new ArrayList<>();
+        if (size == 1) {
+            currentFileArray = arrayOfFiles;
+        }
+        else {
+            currentFileArray.add(arrayOfFiles.get(i));
+        }
+
+        long counter = 0L;
+
+        int nThreads = Runtime.getRuntime().availableProcessors();
+
+        ExecutorService executorService = Executors.newFixedThreadPool(nThreads);
+
+        String resultsPathName2 = resultsPathName + fileName + "/";
+
+        File folder = new File(resultsPathName2);
+        if (folder.exists() && folder.isDirectory()) {
+            purgeDirectory(folder);
+        } else {
+            boolean newFolder = folder.mkdir();
+            if (!newFolder) {
+                System.out.println("New folder creation failed!");
+            }
+        }
+
+        ArrayList<BlockingQueue<FlowMessage>> queues = new ArrayList<>();
+        ArrayList<Future> futures = new ArrayList<>();
+
+        for (int i = 0; i < nThreads; i++) {
+
+            LinkedBlockingQueue<FlowMessage> bQueue = new LinkedBlockingQueue<>();
+            queues.add(bQueue);
+
+            Worker worker = new Worker(fileName + " " + i, bQueue, this.minMaxValues,
+                    currentSelectedValues, currentSelectedValuesProcessing, this.parameters, arrayOfAnomalies, resultsPathName2, this.printOut);
+
+            HashMap<String,Boolean> ips = new HashMap<>();
+            this.ipSplit.put(i, ips);
+
+            futures.add(executorService.submit(worker));
+        }
+
+        for (File currentFile : currentFileArray) {
+
+            System.out.println(currentFile.getName());
+
+            try {
+                FileReader fr = new FileReader(currentFile);
+                BufferedReader br = new BufferedReader(fr);
+
+                boolean firstLine = false;
+                for (String line; (line = br.readLine()) != null; ) {
+
+                    if (firstLine) {
+
+                        String[] sFlow = line.split(",");
+
+                        if (sFlow.length > 0) {
+
+                            for (int index_key = 0; index_key < selectedValuesKeys.length; index_key++) {
+                                String ip = sFlow[selectedValuesKeys[index_key]];
+                                String id = String.valueOf(counter);
+                                String direction = "fwd";
+
+                                if (index_key == 1) {
+                                    sFlow = reverseFlow(sFlow, reverseTable);
+                                    direction = "bwd";
+                                }
+                                String[] reducedFlow = new String[currentSelectedValues.length];
+                                for (int j = 0; j < currentSelectedValues.length; j++) {
+                                    reducedFlow[j] = sFlow[currentSelectedValues[j]];
+                                }
+
+                                int workerIndex = findAppropriateWorker(ip);
+                                FlowMessage fm = new FlowMessage(reducedFlow, direction);
+                                queues.get(workerIndex).put(fm);
+                            }
+                        }
+
+                    } else {
+                        firstLine = true;
+                    }
+                    counter++;
+                }
+                for (BlockingQueue<FlowMessage> bQ : queues) {
+                    bQ.put(new FlowMessage(new String[]{"END"}, "fwd"));
+                }
+
+            }
+            catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+
+        executorService.shutdown();
+
+        for (Future f : futures) {
+            try {
+                System.out.println(f.get());
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            } catch (ExecutionException e) {
+                throw new RuntimeException(e);
+            }
+        }
+
+        System.out.println(counter);
+
+        long innerEstimatedTime = System.nanoTime() - innerStartTime;
+        long seconds = TimeUnit.NANOSECONDS.toSeconds(innerEstimatedTime) % 60;
+        long minutes = TimeUnit.NANOSECONDS.toMinutes(innerEstimatedTime) % 60;
+        long hours = TimeUnit.NANOSECONDS.toHours(innerEstimatedTime) % 24;
+        long days = TimeUnit.NANOSECONDS.toDays(innerEstimatedTime);
+
+        pw.printf("Elapsed time: %02d d %02d h %02d m %02d s", days, hours, minutes, seconds);
+
+        CalculateResults3 cr3 = new CalculateResults3();
+        cr3.calculate(resultsPathName2, fileName, printOut, pw);
     }
 }

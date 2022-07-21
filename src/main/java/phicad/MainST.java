@@ -13,7 +13,7 @@ import static utils.Utils.*;
 /**
  * The class implements a single file for directly running PHICAD.
  */
-public class SingleThreadMainSingleFile {
+public class MainST {
 
     /* Common parameters */
     static boolean printOut = true;
@@ -132,7 +132,7 @@ public class SingleThreadMainSingleFile {
         purgeDirectory(dir);
 
         try {
-            PrintWriter pw = new PrintWriter(resultsPathName + "PHICAD_SingleThreadMainSingleFile_results.txt");
+            PrintWriter pw = new PrintWriter(resultsPathName + "PHICAD_MainST_results.txt");
 
             // Run with the selected parameters
             List<Double> maxChildren = new ArrayList<>(Arrays.asList(8.0));
@@ -170,8 +170,6 @@ public class SingleThreadMainSingleFile {
             List<List<Double>> product = product(input);
 
             System.out.println("Number of parameter combinations: " + product.size());
-
-            int anomalousFlows = 0;
 
             // Run through entire dataset
             int size = 1;
@@ -292,7 +290,6 @@ public class SingleThreadMainSingleFile {
                                             for (String label : anomalies) {
                                                 if (currentLabel.equals(label)) {
                                                     groundTruth = 1.0;
-                                                    anomalousFlows++;
                                                 }
                                             }
 

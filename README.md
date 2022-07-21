@@ -1,4 +1,4 @@
-## PHICAD
+## PHICAD / PHI2CAD
 
 The program code accompanying the doctoral thesis Detecting temporal and spatial anomalies in users’ activities for security provisioning in computer
 networks written by Aleks Huč.
@@ -11,10 +11,12 @@ JavaDocs are done for the following folders (others will follow as soon as possi
 
 - adwin
 - tbirchi
+- phicad
 
 How to run the code:
 
 - Download the datasets from the corresponding sources into the right folders.
-- Run the PreprocessCICIDS2017 and PreprocessISCXIDS2012 file to prepare the corresponding dataset for analysis
-- Run the SingleThreadMainSingleFile file in either phicad or phi2cad folder depending on which approach you would like to use (an object oriented approach for running will be prepared as soon as possible).
+- Run the PreprocessCICIDS2017 and PreprocessISCXIDS2012 file to prepare the corresponding dataset for analysis.
+- Run the MainST file in either phicad or phi2cad folder for single thread execution of the analysis.
+- Run the Main file in either phicad or phi2cad folder for multi thread execution of the analysis.
 
